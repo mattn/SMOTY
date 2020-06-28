@@ -18,8 +18,8 @@ func dbInit_linux() {
 	if err != nil {
 		panic("dbInit_linux失敗")
 	}
-	db.AutoMigrate(&Problem_linux{})
 	defer db.Close()
+	db.AutoMigrate(&Problem_linux{})
 }
 
 func check_linux(id int, anser string) (Problem_linux, string) {
@@ -27,6 +27,7 @@ func check_linux(id int, anser string) (Problem_linux, string) {
 	if err != nil {
 		panic("linux_check失敗")
 	}
+	defer db.Close()
 	var result string
 	var linux Problem_linux
 	if err := db.Where("id = ? AND anser = ?", id, anser).First(&linux).Error; err != nil {
@@ -34,7 +35,6 @@ func check_linux(id int, anser string) (Problem_linux, string) {
 	} else {
 		result = "正解"
 	}
-	db.Close()
 	return linux, result
 }
 
@@ -43,9 +43,9 @@ func linuxGetAll() []Problem_linux {
 	if err != nil {
 		panic("データベース開けず(dbGetAll)")
 	}
+	defer db.Close()
 	var linux []Problem_linux
 	db.Order("created_at desc").Find(&linux)
-	db.Close()
 	return linux
 }
 
@@ -54,9 +54,9 @@ func linuxGetOne(id int) Problem_linux {
 	if err != nil {
 		panic("データベース開けず(dbGetOne)")
 	}
+	defer db.Close()
 	var linux Problem_linux
 	db.First(&linux, id)
-	db.Close()
 	return linux
 }
 
@@ -65,8 +65,8 @@ func linuxInsert(question string, anser string, hint string) {
 	if err != nil {
 		panic("linuxInsert失敗")
 	}
-	db.Create(&Problem_linux{Question: question, Anser: anser, Hint: hint})
 	defer db.Close()
+	db.Create(&Problem_linux{Question: question, Anser: anser, Hint: hint})
 }
 
 func linuxUpdate(id int, question string, hint string, anser string) {
@@ -74,13 +74,13 @@ func linuxUpdate(id int, question string, hint string, anser string) {
 	if err != nil {
 		panic("linuxUpdate失敗")
 	}
+	defer db.Close()
 	var linux Problem_linux
 	db.First(&linux, id)
 	linux.Question = question
 	linux.Anser = anser
 	linux.Hint = hint
 	db.Save(&linux)
-	db.Close()
 }
 
 func linuxDelete(id int) {
@@ -88,7 +88,7 @@ func linuxDelete(id int) {
 	if err != nil {
 		panic("linuxDelete失敗")
 	}
+	defer db.Close()
 	var linux Problem_linux
 	db.Where("id = ?", id).Delete(&linux)
-	db.Close()
 }

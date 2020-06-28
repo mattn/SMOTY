@@ -18,8 +18,8 @@ func dbInit_router() {
 	if err != nil {
 		panic("dbInit_router失敗")
 	}
-	db.AutoMigrate(&Problem_router{})
 	defer db.Close()
+	db.AutoMigrate(&Problem_router{})
 }
 
 func check_router(id int, anser string) (Problem_router, string) {
@@ -27,6 +27,7 @@ func check_router(id int, anser string) (Problem_router, string) {
 	if err != nil {
 		panic("router_check失敗")
 	}
+	defer db.Close()
 	var result string
 	var router Problem_router
 	if err := db.Where("id = ? AND anser = ?", id, anser).First(&router).Error; err != nil {
@@ -34,7 +35,6 @@ func check_router(id int, anser string) (Problem_router, string) {
 	} else {
 		result = "正解"
 	}
-	db.Close()
 	return router, result
 }
 
@@ -43,9 +43,9 @@ func routerGetAll() []Problem_router {
 	if err != nil {
 		panic("データベース開けず(dbGetAll)")
 	}
+	defer db.Close()
 	var router []Problem_router
 	db.Order("created_at desc").Find(&router)
-	db.Close()
 	return router
 }
 
@@ -54,9 +54,9 @@ func routerGetOne(id int) Problem_router {
 	if err != nil {
 		panic("データベース開けず(dbGetOne)")
 	}
+	defer db.Close()
 	var router Problem_router
 	db.First(&router, id)
-	db.Close()
 	return router
 }
 
@@ -65,8 +65,8 @@ func routerInsert(question string, anser string, hint string) {
 	if err != nil {
 		panic("routerInsert失敗")
 	}
-	db.Create(&Problem_router{Question: question, Anser: anser, Hint: hint})
 	defer db.Close()
+	db.Create(&Problem_router{Question: question, Anser: anser, Hint: hint})
 }
 
 func routerUpdate(id int, question string, hint string, anser string) {
@@ -74,13 +74,13 @@ func routerUpdate(id int, question string, hint string, anser string) {
 	if err != nil {
 		panic("routerUpdate失敗")
 	}
+	defer db.Close()
 	var router Problem_router
 	db.First(&router, id)
 	router.Question = question
 	router.Hint = hint
 	router.Anser = anser
 	db.Save(&router)
-	db.Close()
 }
 
 func routerDelete(id int) {
@@ -88,7 +88,7 @@ func routerDelete(id int) {
 	if err != nil {
 		panic("routerDelete失敗")
 	}
+	defer db.Close()
 	var router Problem_router
 	db.Where("id = ?", id).Delete(&router)
-	db.Close()
 }

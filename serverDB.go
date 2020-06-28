@@ -18,8 +18,8 @@ func dbInit_server() {
 	if err != nil {
 		panic("dbInit_server失敗")
 	}
-	db.AutoMigrate(&Problem_server{})
 	defer db.Close()
+	db.AutoMigrate(&Problem_server{})
 }
 
 func check_server(id int, anser string) (Problem_server, string) {
@@ -27,6 +27,7 @@ func check_server(id int, anser string) (Problem_server, string) {
 	if err != nil {
 		panic("server_check失敗")
 	}
+	defer db.Close()
 	var result string
 	var server Problem_server
 	if err := db.Where("id = ? AND anser = ?", id, anser).First(&server).Error; err != nil {
@@ -34,7 +35,6 @@ func check_server(id int, anser string) (Problem_server, string) {
 	} else {
 		result = "正解"
 	}
-	db.Close()
 	return server, result
 }
 
@@ -43,9 +43,9 @@ func serverGetAll() []Problem_server {
 	if err != nil {
 		panic("データベース開けず(dbGetAll)")
 	}
+	defer db.Close()
 	var server []Problem_server
 	db.Order("created_at desc").Find(&server)
-	db.Close()
 	return server
 }
 
@@ -54,9 +54,9 @@ func serverGetOne(id int) Problem_server {
 	if err != nil {
 		panic("データベース開けず(dbGetOne)")
 	}
+	defer db.Close()
 	var server Problem_server
 	db.First(&server, id)
-	db.Close()
 	return server
 }
 
@@ -65,8 +65,8 @@ func serverInsert(question string, anser string, hint string) {
 	if err != nil {
 		panic("serverInsert失敗")
 	}
-	db.Create(&Problem_server{Question: question, Anser: anser, Hint: hint})
 	defer db.Close()
+	db.Create(&Problem_server{Question: question, Anser: anser, Hint: hint})
 }
 
 func serverUpdate(id int, question string, hint string, anser string) {
@@ -74,13 +74,13 @@ func serverUpdate(id int, question string, hint string, anser string) {
 	if err != nil {
 		panic("serverUpdate失敗")
 	}
+	defer db.Close()
 	var server Problem_server
 	db.First(&server, id)
 	server.Question = question
 	server.Hint = hint
 	server.Anser = anser
 	db.Save(&server)
-	db.Close()
 }
 
 func serverDelete(id int) {
@@ -88,7 +88,7 @@ func serverDelete(id int) {
 	if err != nil {
 		panic("serverDelete失敗")
 	}
+	defer db.Close()
 	var server Problem_server
 	db.Where("id = ?", id).Delete(&server)
-	db.Close()
 }
