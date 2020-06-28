@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
@@ -13,19 +15,20 @@ type Problem_router struct {
 }
 
 // DB接続
-func dbInit_router() {
+func dbInit_router() error {
 	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
 	if err != nil {
-		panic("dbInit_router失敗")
+		return fmt.Errorf("dbInit_router失敗: %w", err)
 	}
 	defer db.Close()
 	db.AutoMigrate(&Problem_router{})
+	return nil
 }
 
-func check_router(id int, anser string) (Problem_router, string) {
+func check_router(id int, anser string) (Problem_router, string, error) {
 	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
 	if err != nil {
-		panic("router_check失敗")
+		return Problem_router{}, "", fmt.Errorf("router_check失敗: %w", err)
 	}
 	defer db.Close()
 	var result string
@@ -35,44 +38,45 @@ func check_router(id int, anser string) (Problem_router, string) {
 	} else {
 		result = "正解"
 	}
-	return router, result
+	return router, result, nil
 }
 
-func routerGetAll() []Problem_router {
+func routerGetAll() ([]Problem_router, error) {
 	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
 	if err != nil {
-		panic("データベース開けず(dbGetAll)")
+		return nil, fmt.Errorf("データベース開けず(dbGetAll): %w", err)
 	}
 	defer db.Close()
 	var router []Problem_router
 	db.Order("created_at desc").Find(&router)
-	return router
+	return router, nil
 }
 
-func routerGetOne(id int) Problem_router {
+func routerGetOne(id int) (Problem_router, error) {
 	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
 	if err != nil {
-		panic("データベース開けず(dbGetOne)")
+		return Problem_router{}, fmt.Errorf("データベース開けず(dbGetOne): %w", err)
 	}
 	defer db.Close()
 	var router Problem_router
 	db.First(&router, id)
-	return router
+	return router, nil
 }
 
-func routerInsert(question string, anser string, hint string) {
+func routerInsert(question string, anser string, hint string) error {
 	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
 	if err != nil {
-		panic("routerInsert失敗")
+		return fmt.Errorf("routerInsert失敗: %w", err)
 	}
 	defer db.Close()
 	db.Create(&Problem_router{Question: question, Anser: anser, Hint: hint})
+	return nil
 }
 
-func routerUpdate(id int, question string, hint string, anser string) {
+func routerUpdate(id int, question string, hint string, anser string) error {
 	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
 	if err != nil {
-		panic("routerUpdate失敗")
+		return fmt.Errorf("routerUpdate失敗: %w", err)
 	}
 	defer db.Close()
 	var router Problem_router
@@ -81,14 +85,16 @@ func routerUpdate(id int, question string, hint string, anser string) {
 	router.Hint = hint
 	router.Anser = anser
 	db.Save(&router)
+	return nil
 }
 
-func routerDelete(id int) {
+func routerDelete(id int) error {
 	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
 	if err != nil {
-		panic("routerDelete失敗")
+		return fmt.Errorf("routerDelete失敗: %w", err)
 	}
 	defer db.Close()
 	var router Problem_router
 	db.Where("id = ?", id).Delete(&router)
+	return nil
 }

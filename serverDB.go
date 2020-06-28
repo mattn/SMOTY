@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
@@ -13,19 +15,20 @@ type Problem_server struct {
 }
 
 // DB接続
-func dbInit_server() {
+func dbInit_server() error {
 	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
 	if err != nil {
-		panic("dbInit_server失敗")
+		return fmt.Errorf("dbInit_server失敗: %w", err)
 	}
 	defer db.Close()
 	db.AutoMigrate(&Problem_server{})
+	return nil
 }
 
-func check_server(id int, anser string) (Problem_server, string) {
+func check_server(id int, anser string) (Problem_server, string, error) {
 	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
 	if err != nil {
-		panic("server_check失敗")
+		return Problem_server{}, "", fmt.Errorf("check_server失敗: %w", err)
 	}
 	defer db.Close()
 	var result string
@@ -35,44 +38,45 @@ func check_server(id int, anser string) (Problem_server, string) {
 	} else {
 		result = "正解"
 	}
-	return server, result
+	return server, result, nil
 }
 
-func serverGetAll() []Problem_server {
+func serverGetAll() ([]Problem_server, error) {
 	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
 	if err != nil {
-		panic("データベース開けず(dbGetAll)")
+		return nil, fmt.Errorf("データベース開けず(dbGetAll): %w", err)
 	}
 	defer db.Close()
 	var server []Problem_server
 	db.Order("created_at desc").Find(&server)
-	return server
+	return server, nil
 }
 
-func serverGetOne(id int) Problem_server {
+func serverGetOne(id int) (Problem_server, error) {
 	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
 	if err != nil {
-		panic("データベース開けず(dbGetOne)")
+		return Problem_server{}, fmt.Errorf("データベース開けず(dbGetOne): %w", err)
 	}
 	defer db.Close()
 	var server Problem_server
 	db.First(&server, id)
-	return server
+	return server, nil
 }
 
-func serverInsert(question string, anser string, hint string) {
+func serverInsert(question string, anser string, hint string) error {
 	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
 	if err != nil {
-		panic("serverInsert失敗")
+		return fmt.Errorf("serverInsert失敗: %w", err)
 	}
 	defer db.Close()
 	db.Create(&Problem_server{Question: question, Anser: anser, Hint: hint})
+	return nil
 }
 
-func serverUpdate(id int, question string, hint string, anser string) {
+func serverUpdate(id int, question string, hint string, anser string) error {
 	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
 	if err != nil {
-		panic("serverUpdate失敗")
+		return fmt.Errorf("serverUpdate失敗: %w", err)
 	}
 	defer db.Close()
 	var server Problem_server
@@ -81,14 +85,16 @@ func serverUpdate(id int, question string, hint string, anser string) {
 	server.Hint = hint
 	server.Anser = anser
 	db.Save(&server)
+	return nil
 }
 
-func serverDelete(id int) {
+func serverDelete(id int) error {
 	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
 	if err != nil {
-		panic("serverDelete失敗")
+		return fmt.Errorf("serverDelete失敗: %w", err)
 	}
 	defer db.Close()
 	var server Problem_server
 	db.Where("id = ?", id).Delete(&server)
+	return nil
 }

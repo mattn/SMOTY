@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"net/http"
 	"sort"
 	"strconv"
@@ -50,7 +51,8 @@ func main() {
 	r.GET("/smoty", func(c *gin.Context) {
 		session := sessions.Default(c)
 		if session.Get("user_name") == nil {
-			panic("ログインしてない")
+			c.AbortWithError(http.StatusUnauthorized, errors.New("ログインしてない"))
+			return
 		}
 		c.HTML(200, "smoty.html", gin.H{"user_name": session.Get("user_name")})
 	})
@@ -59,9 +61,14 @@ func main() {
 	r.GET("/smoty/linux", func(c *gin.Context) {
 		session := sessions.Default(c)
 		if session.Get("user_name") == nil {
-			panic("ログインしてない")
+			c.AbortWithError(http.StatusUnauthorized, errors.New("ログインしてない"))
+			return
 		}
-		linux := linuxGetAll()
+		linux, err := linuxGetAll()
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
 		sort.Slice(linux, func(i, j int) bool {
 			return linux[i].ID < linux[j].ID
 		})
@@ -76,9 +83,14 @@ func main() {
 		n := c.Param("id")
 		id, err := strconv.Atoi(n)
 		if err != nil {
-			panic(err)
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
 		}
-		linux, anser := check_linux(id, a)
+		linux, anser, err := check_linux(id, a)
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
 		c.HTML(http.StatusOK, "linuxCheck.html", gin.H{"user_name": name, "linux": linux, "anser": anser, "a": a})
 	})
 
@@ -86,9 +98,14 @@ func main() {
 	r.GET("/smoty/server", func(c *gin.Context) {
 		session := sessions.Default(c)
 		if session.Get("user_name") == nil {
-			panic("ログインしてない")
+			c.AbortWithError(http.StatusUnauthorized, errors.New("ログインしてない"))
+			return
 		}
-		server := serverGetAll()
+		server, err := serverGetAll()
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
 		sort.Slice(server, func(i, j int) bool {
 			return server[i].ID < server[j].ID
 		})
@@ -103,9 +120,14 @@ func main() {
 		n := c.Param("id")
 		id, err := strconv.Atoi(n)
 		if err != nil {
-			panic(err)
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
 		}
-		server, anser := check_linux(id, a)
+		server, anser, err := check_linux(id, a)
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
 		c.HTML(http.StatusOK, "serverCheck.html", gin.H{"user_name": name, "server": server, "anser": anser, "a": a})
 	})
 
@@ -113,9 +135,14 @@ func main() {
 	r.GET("/smoty/router", func(c *gin.Context) {
 		session := sessions.Default(c)
 		if session.Get("user_name") == nil {
-			panic("ログインしてない")
+			c.AbortWithError(http.StatusUnauthorized, errors.New("ログインしてない"))
+			return
 		}
-		router := routerGetAll()
+		router, err := routerGetAll()
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
 		sort.Slice(router, func(i, j int) bool {
 			return router[i].ID < router[j].ID
 		})
@@ -130,9 +157,14 @@ func main() {
 		n := c.Param("id")
 		id, err := strconv.Atoi(n)
 		if err != nil {
-			panic(err)
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
 		}
-		router, anser := check_router(id, a)
+		router, anser, err := check_router(id, a)
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
 		c.HTML(http.StatusOK, "routerCheck.html", gin.H{"user_name": name, "router": router, "anser": anser, "a": a})
 	})
 
@@ -140,7 +172,8 @@ func main() {
 	r.GET("/logout", func(c *gin.Context) {
 		session := sessions.Default(c)
 		if session.Get("user_name") == nil {
-			panic("ログインしてない")
+			c.AbortWithError(http.StatusUnauthorized, errors.New("ログインしてない"))
+			return
 		}
 		session.Clear()
 		session.Save()
@@ -154,7 +187,11 @@ func main() {
 
 	//Linuxページの編集
 	r.GET("/root/linux", func(c *gin.Context) {
-		linux := linuxGetAll()
+		linux, err := linuxGetAll()
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
 		c.HTML(http.StatusOK, "rootLinux.html", gin.H{
 			"linux": linux,
 		})
@@ -174,9 +211,14 @@ func main() {
 		n := c.Param("id")
 		id, err := strconv.Atoi(n)
 		if err != nil {
-			panic(err)
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
 		}
-		linux := linuxGetOne(id)
+		linux, err := linuxGetOne(id)
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
 		c.HTML(200, "rootLinuxDetail.html", gin.H{"linux": linux})
 	})
 
@@ -185,9 +227,14 @@ func main() {
 		n := c.Param("id")
 		id, err := strconv.Atoi(n)
 		if err != nil {
-			panic(err)
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
 		}
-		linux := linuxGetOne(id)
+		linux, err := linuxGetOne(id)
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
 		c.HTML(200, "rootLinuxDelete.html", gin.H{"linux": linux})
 	})
 
@@ -195,9 +242,14 @@ func main() {
 		n := c.Param("id")
 		id, err := strconv.Atoi(n)
 		if err != nil {
-			panic(err)
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
 		}
-		linuxDelete(id)
+		err = linuxDelete(id)
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
 		c.Redirect(302, "/root/linux")
 	})
 
@@ -206,18 +258,27 @@ func main() {
 		n := c.Param("id")
 		id, err := strconv.Atoi(n)
 		if err != nil {
-			panic("ERROR")
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
 		}
 		question := c.PostForm("question")
 		hint := c.PostForm("hint")
 		anser := c.PostForm("anser")
-		linuxUpdate(id, question, hint, anser)
+		err = linuxUpdate(id, question, hint, anser)
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
 		c.Redirect(302, "/root/linux")
 	})
 
 	//serverページの編集
 	r.GET("/root/server", func(c *gin.Context) {
-		server := serverGetAll()
+		server, err := serverGetAll()
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
 		c.HTML(http.StatusOK, "rootServer.html", gin.H{
 			"server": server,
 		})
@@ -228,7 +289,11 @@ func main() {
 		question := c.PostForm("question")
 		anser := c.PostForm("anser")
 		hint := c.PostForm("hint")
-		serverInsert(question, anser, hint)
+		err := serverInsert(question, anser, hint)
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
 		c.Redirect(302, "/root/server")
 	})
 
@@ -237,9 +302,14 @@ func main() {
 		n := c.Param("id")
 		id, err := strconv.Atoi(n)
 		if err != nil {
-			panic(err)
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
 		}
-		server := serverGetOne(id)
+		server, err := serverGetOne(id)
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
 		c.HTML(200, "rootServerDetail.html", gin.H{"server": server})
 	})
 
@@ -248,9 +318,14 @@ func main() {
 		n := c.Param("id")
 		id, err := strconv.Atoi(n)
 		if err != nil {
-			panic(err)
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
 		}
-		server := serverGetOne(id)
+		server, err := serverGetOne(id)
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
 		c.HTML(200, "rootServerDelete.html", gin.H{"server": server})
 	})
 
@@ -258,9 +333,14 @@ func main() {
 		n := c.Param("id")
 		id, err := strconv.Atoi(n)
 		if err != nil {
-			panic(err)
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
 		}
-		serverDelete(id)
+		err = serverDelete(id)
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
 		c.Redirect(302, "/root/server")
 	})
 
@@ -269,18 +349,27 @@ func main() {
 		n := c.Param("id")
 		id, err := strconv.Atoi(n)
 		if err != nil {
-			panic("ERROR")
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
 		}
 		question := c.PostForm("question")
 		anser := c.PostForm("anser")
 		hint := c.PostForm("hint")
-		serverUpdate(id, question, hint, anser)
+		err = serverUpdate(id, question, hint, anser)
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
 		c.Redirect(302, "/root/server")
 	})
 
 	//routerページの編集
 	r.GET("/root/router", func(c *gin.Context) {
-		router := routerGetAll()
+		router, err := routerGetAll()
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
 		c.HTML(http.StatusOK, "rootRouter.html", gin.H{
 			"router": router,
 		})
@@ -291,7 +380,11 @@ func main() {
 		question := c.PostForm("question")
 		anser := c.PostForm("anser")
 		hint := c.PostForm("hint")
-		routerInsert(question, anser, hint)
+		err := routerInsert(question, anser, hint)
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
 		c.Redirect(302, "/root/router")
 	})
 
@@ -300,9 +393,14 @@ func main() {
 		n := c.Param("id")
 		id, err := strconv.Atoi(n)
 		if err != nil {
-			panic(err)
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
 		}
-		router := routerGetOne(id)
+		router, err := routerGetOne(id)
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
 		c.HTML(200, "rootRouterDetail.html", gin.H{"router": router})
 	})
 
@@ -311,9 +409,14 @@ func main() {
 		n := c.Param("id")
 		id, err := strconv.Atoi(n)
 		if err != nil {
-			panic(err)
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
 		}
-		router := routerGetOne(id)
+		router, err := routerGetOne(id)
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
 		c.HTML(200, "rootRouterDelete.html", gin.H{"router": router})
 	})
 
@@ -321,9 +424,14 @@ func main() {
 		n := c.Param("id")
 		id, err := strconv.Atoi(n)
 		if err != nil {
-			panic(err)
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
 		}
-		routerDelete(id)
+		err = routerDelete(id)
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
 		c.Redirect(302, "/root/router")
 	})
 
@@ -332,12 +440,17 @@ func main() {
 		n := c.Param("id")
 		id, err := strconv.Atoi(n)
 		if err != nil {
-			panic("ERROR")
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
 		}
 		question := c.PostForm("question")
 		anser := c.PostForm("anser")
 		hint := c.PostForm("hint")
-		routerUpdate(id, question, hint, anser)
+		err = routerUpdate(id, question, hint, anser)
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
 		c.Redirect(302, "/root/router")
 	})
 
