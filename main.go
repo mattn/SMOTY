@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"log"
 	"net/http"
 	"sort"
 	"strconv"
@@ -18,10 +19,18 @@ func main() {
 	store := cookie.NewStore([]byte("secret"))
 	r.Use(sessions.Sessions("user", store))
 
-	dbInit_users()
-	dbInit_linux()
-	dbInit_server()
-	dbInit_router()
+	inits := []func() error{
+		dbInit_users,
+		dbInit_linux,
+		dbInit_server,
+		dbInit_router,
+	}
+	for _, f := range inits {
+		err := f()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 
 	//ログインページ
 	r.GET("/", func(c *gin.Context) {
