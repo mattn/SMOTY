@@ -21,8 +21,7 @@ func dbInit_linux() error {
 		return fmt.Errorf("dbInit_linux失敗: %w", err)
 	}
 	defer db.Close()
-	db.AutoMigrate(&Problem_linux{})
-	return nil
+	return db.AutoMigrate(&Problem_linux{}).Error
 }
 
 func check_linux(id int, anser string) (Problem_linux, string, error) {
@@ -75,8 +74,7 @@ func linuxInsert(question string, anser string, hint string) error {
 		return fmt.Errorf("linuxInsert失敗: %w", err)
 	}
 	defer db.Close()
-	db.Create(&Problem_linux{Question: question, Anser: anser, Hint: hint})
-	return nil
+	return db.Create(&Problem_linux{Question: question, Anser: anser, Hint: hint}).Error
 }
 
 func linuxUpdate(id int, question string, hint string, anser string) error {
@@ -86,12 +84,14 @@ func linuxUpdate(id int, question string, hint string, anser string) error {
 	}
 	defer db.Close()
 	var linux Problem_linux
-	db.First(&linux, id)
+	err = db.First(&linux, id).Error
+	if err != nil {
+		return fmt.Errorf("linuxUpdate失敗: %w", err)
+	}
 	linux.Question = question
 	linux.Anser = anser
 	linux.Hint = hint
-	db.Save(&linux)
-	return nil
+	return db.Save(&linux).Error
 }
 
 func linuxDelete(id int) error {
@@ -101,6 +101,5 @@ func linuxDelete(id int) error {
 	}
 	defer db.Close()
 	var linux Problem_linux
-	db.Where("id = ?", id).Delete(&linux)
-	return nil
+	return db.Where("id = ?", id).Delete(&linux).Error
 }

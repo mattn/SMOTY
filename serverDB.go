@@ -21,8 +21,7 @@ func dbInit_server() error {
 		return fmt.Errorf("dbInit_server失敗: %w", err)
 	}
 	defer db.Close()
-	db.AutoMigrate(&Problem_server{})
-	return nil
+	return db.AutoMigrate(&Problem_server{}).Error
 }
 
 func check_server(id int, anser string) (Problem_server, string, error) {
@@ -48,7 +47,10 @@ func serverGetAll() ([]Problem_server, error) {
 	}
 	defer db.Close()
 	var server []Problem_server
-	db.Order("created_at desc").Find(&server)
+	err = db.Order("created_at desc").Find(&server).Error
+	if err != nil {
+		return nil, fmt.Errorf("serverGetAll失敗: %w", err)
+	}
 	return server, nil
 }
 
@@ -59,7 +61,10 @@ func serverGetOne(id int) (Problem_server, error) {
 	}
 	defer db.Close()
 	var server Problem_server
-	db.First(&server, id)
+	err = db.First(&server, id).Error
+	if err != nil {
+		return Problem_server{}, fmt.Errorf("serverGetOne失敗: %w", err)
+	}
 	return server, nil
 }
 
@@ -69,8 +74,7 @@ func serverInsert(question string, anser string, hint string) error {
 		return fmt.Errorf("serverInsert失敗: %w", err)
 	}
 	defer db.Close()
-	db.Create(&Problem_server{Question: question, Anser: anser, Hint: hint})
-	return nil
+	return db.Create(&Problem_server{Question: question, Anser: anser, Hint: hint}).Error
 }
 
 func serverUpdate(id int, question string, hint string, anser string) error {
@@ -80,12 +84,14 @@ func serverUpdate(id int, question string, hint string, anser string) error {
 	}
 	defer db.Close()
 	var server Problem_server
-	db.First(&server, id)
+	err = db.First(&server, id).Error
+	if err != nil {
+		return fmt.Errorf("serverUpdate失敗: %w", err)
+	}
 	server.Question = question
 	server.Hint = hint
 	server.Anser = anser
-	db.Save(&server)
-	return nil
+	return db.Save(&server).Error
 }
 
 func serverDelete(id int) error {
@@ -95,6 +101,5 @@ func serverDelete(id int) error {
 	}
 	defer db.Close()
 	var server Problem_server
-	db.Where("id = ?", id).Delete(&server)
-	return nil
+	return db.Where("id = ?", id).Delete(&server).Error
 }

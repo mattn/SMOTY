@@ -21,8 +21,7 @@ func dbInit_users() error {
 		return fmt.Errorf("dbInit_users失敗: %w", err)
 	}
 	defer db.Close()
-	db.AutoMigrate(&Users{})
-	return nil
+	return db.AutoMigrate(&Users{}).Error
 }
 
 // サインアップ
@@ -35,10 +34,8 @@ func dbSignup(name string, password string) error {
 	var users Users
 	if err := db.Where("name = ?", name).First(&users).Error; err == nil {
 		return fmt.Errorf("すでに同じ名前が使われています: %w", err)
-	} else {
-		db.Create(&Users{Name: name, Password: password})
 	}
-	return nil
+	return db.Create(&Users{Name: name, Password: password}).Error
 }
 
 // ログイン
@@ -62,8 +59,10 @@ func dbDelete(id int) (Users, error) {
 	}
 	defer db.Close()
 	var users Users
-	db.First(&users, id)
-	db.Delete(&users)
+	err = db.First(&users, id).Error
+	if err != nil {
+		return Users{}, fmt.Errorf("dbDelete失敗: %w", err)
+	}
 	return users, nil
 }
 
@@ -74,6 +73,9 @@ func dbGetOne(id int) (Users, error) {
 	}
 	defer db.Close()
 	var users Users
-	db.First(&users, id)
+	err = db.First(&users, id).Error
+	if err != nil {
+		return Users{}, fmt.Errorf("dbGetOne失敗: %w", err)
+	}
 	return users, nil
 }

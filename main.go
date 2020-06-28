@@ -43,7 +43,11 @@ func main() {
 	r.POST("/signup", func(c *gin.Context) {
 		name := c.PostForm("name")
 		password := c.PostForm("password")
-		dbSignup(name, password)
+		err := dbSignup(name, password)
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, errors.New("dbSignup失敗"))
+			return
+		}
 		c.HTML(http.StatusOK, "signup.html", gin.H{"name": name, "password": password})
 	})
 
@@ -52,7 +56,11 @@ func main() {
 		name := c.PostForm("name")
 		password := c.PostForm("password")
 		session := sessions.Default(c)
-		dblogin(name, password)
+		_, err := dblogin(name, password)
+		if err != nil {
+			c.AbortWithError(http.StatusUnauthorized, errors.New("ログインしてない"))
+			return
+		}
 		session.Set("user_name", name)
 		session.Save()
 		c.Redirect(302, "/smoty")
@@ -213,7 +221,11 @@ func main() {
 		question := c.PostForm("question")
 		anser := c.PostForm("anser")
 		hint := c.PostForm("hint")
-		linuxInsert(question, anser, hint)
+		err := linuxInsert(question, anser, hint)
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			return
+		}
 		c.Redirect(302, "/root/linux")
 	})
 

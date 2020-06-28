@@ -21,8 +21,7 @@ func dbInit_router() error {
 		return fmt.Errorf("dbInit_router失敗: %w", err)
 	}
 	defer db.Close()
-	db.AutoMigrate(&Problem_router{})
-	return nil
+	return db.AutoMigrate(&Problem_router{}).Error
 }
 
 func check_router(id int, anser string) (Problem_router, string, error) {
@@ -48,7 +47,10 @@ func routerGetAll() ([]Problem_router, error) {
 	}
 	defer db.Close()
 	var router []Problem_router
-	db.Order("created_at desc").Find(&router)
+	err = db.Order("created_at desc").Find(&router).Error
+	if err != nil {
+		return nil, fmt.Errorf("routerGetAll失敗: %w", err)
+	}
 	return router, nil
 }
 
@@ -59,7 +61,10 @@ func routerGetOne(id int) (Problem_router, error) {
 	}
 	defer db.Close()
 	var router Problem_router
-	db.First(&router, id)
+	err = db.First(&router, id).Error
+	if err != nil {
+		return Problem_router{}, fmt.Errorf("routerGetOne失敗: %w", err)
+	}
 	return router, nil
 }
 
@@ -69,8 +74,7 @@ func routerInsert(question string, anser string, hint string) error {
 		return fmt.Errorf("routerInsert失敗: %w", err)
 	}
 	defer db.Close()
-	db.Create(&Problem_router{Question: question, Anser: anser, Hint: hint})
-	return nil
+	return db.Create(&Problem_router{Question: question, Anser: anser, Hint: hint}).Error
 }
 
 func routerUpdate(id int, question string, hint string, anser string) error {
@@ -80,12 +84,14 @@ func routerUpdate(id int, question string, hint string, anser string) error {
 	}
 	defer db.Close()
 	var router Problem_router
-	db.First(&router, id)
+	err = db.First(&router, id).Error
+	if err != nil {
+		return fmt.Errorf("routerUpdate失敗: %w", err)
+	}
 	router.Question = question
 	router.Hint = hint
 	router.Anser = anser
-	db.Save(&router)
-	return nil
+	return db.Save(&router).Error
 }
 
 func routerDelete(id int) error {
@@ -95,6 +101,5 @@ func routerDelete(id int) error {
 	}
 	defer db.Close()
 	var router Problem_router
-	db.Where("id = ?", id).Delete(&router)
-	return nil
+	return db.Where("id = ?", id).Delete(&router).Error
 }
