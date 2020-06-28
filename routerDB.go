@@ -16,7 +16,7 @@ type Problem_router struct {
 
 // DB接続
 func dbInit_router() error {
-	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", connectString)
 	if err != nil {
 		return fmt.Errorf("dbInit_router失敗: %w", err)
 	}
@@ -26,7 +26,7 @@ func dbInit_router() error {
 }
 
 func check_router(id int, anser string) (Problem_router, string, error) {
-	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", connectString)
 	if err != nil {
 		return Problem_router{}, "", fmt.Errorf("router_check失敗: %w", err)
 	}
@@ -42,7 +42,7 @@ func check_router(id int, anser string) (Problem_router, string, error) {
 }
 
 func routerGetAll() ([]Problem_router, error) {
-	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", connectString)
 	if err != nil {
 		return nil, fmt.Errorf("データベース開けず(dbGetAll): %w", err)
 	}
@@ -53,7 +53,7 @@ func routerGetAll() ([]Problem_router, error) {
 }
 
 func routerGetOne(id int) (Problem_router, error) {
-	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", connectString)
 	if err != nil {
 		return Problem_router{}, fmt.Errorf("データベース開けず(dbGetOne): %w", err)
 	}
@@ -64,7 +64,7 @@ func routerGetOne(id int) (Problem_router, error) {
 }
 
 func routerInsert(question string, anser string, hint string) error {
-	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", connectString)
 	if err != nil {
 		return fmt.Errorf("routerInsert失敗: %w", err)
 	}
@@ -74,7 +74,7 @@ func routerInsert(question string, anser string, hint string) error {
 }
 
 func routerUpdate(id int, question string, hint string, anser string) error {
-	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", connectString)
 	if err != nil {
 		return fmt.Errorf("routerUpdate失敗: %w", err)
 	}
@@ -89,7 +89,7 @@ func routerUpdate(id int, question string, hint string, anser string) error {
 }
 
 func routerDelete(id int) error {
-	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", connectString)
 	if err != nil {
 		return fmt.Errorf("routerDelete失敗: %w", err)
 	}

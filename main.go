@@ -12,6 +12,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const connectString = "root:@/database_name?charset=utf8&parseTime=True&loc=Local"
+
 func main() {
 	r := gin.Default()
 	r.LoadHTMLGlob("templates/*.html")

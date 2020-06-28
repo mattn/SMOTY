@@ -16,7 +16,7 @@ type Problem_server struct {
 
 // DB接続
 func dbInit_server() error {
-	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", connectString)
 	if err != nil {
 		return fmt.Errorf("dbInit_server失敗: %w", err)
 	}
@@ -26,7 +26,7 @@ func dbInit_server() error {
 }
 
 func check_server(id int, anser string) (Problem_server, string, error) {
-	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", connectString)
 	if err != nil {
 		return Problem_server{}, "", fmt.Errorf("check_server失敗: %w", err)
 	}
@@ -42,7 +42,7 @@ func check_server(id int, anser string) (Problem_server, string, error) {
 }
 
 func serverGetAll() ([]Problem_server, error) {
-	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", connectString)
 	if err != nil {
 		return nil, fmt.Errorf("データベース開けず(dbGetAll): %w", err)
 	}
@@ -53,7 +53,7 @@ func serverGetAll() ([]Problem_server, error) {
 }
 
 func serverGetOne(id int) (Problem_server, error) {
-	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", connectString)
 	if err != nil {
 		return Problem_server{}, fmt.Errorf("データベース開けず(dbGetOne): %w", err)
 	}
@@ -64,7 +64,7 @@ func serverGetOne(id int) (Problem_server, error) {
 }
 
 func serverInsert(question string, anser string, hint string) error {
-	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", connectString)
 	if err != nil {
 		return fmt.Errorf("serverInsert失敗: %w", err)
 	}
@@ -74,7 +74,7 @@ func serverInsert(question string, anser string, hint string) error {
 }
 
 func serverUpdate(id int, question string, hint string, anser string) error {
-	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", connectString)
 	if err != nil {
 		return fmt.Errorf("serverUpdate失敗: %w", err)
 	}
@@ -89,7 +89,7 @@ func serverUpdate(id int, question string, hint string, anser string) error {
 }
 
 func serverDelete(id int) error {
-	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", connectString)
 	if err != nil {
 		return fmt.Errorf("serverDelete失敗: %w", err)
 	}

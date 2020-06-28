@@ -16,7 +16,7 @@ type Problem_linux struct {
 
 // DB接続
 func dbInit_linux() error {
-	db, err := gorm.Open("mysql", "root:@/database_name?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", connectString)
 	if err != nil {
 		return fmt.Errorf("dbInit_linux失敗: %w", err)
 	}
@@ -26,7 +26,7 @@ func dbInit_linux() error {
 }
 
 func check_linux(id int, anser string) (Problem_linux, string, error) {
-	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", connectString)
 	if err != nil {
 		return Problem_linux{}, "", fmt.Errorf("linux_check失敗: %w", err)
 	}
@@ -42,7 +42,7 @@ func check_linux(id int, anser string) (Problem_linux, string, error) {
 }
 
 func linuxGetAll() ([]Problem_linux, error) {
-	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", connectString)
 	if err != nil {
 		return nil, fmt.Errorf("データベース開けず(dbGetAll): %w", err)
 	}
@@ -56,7 +56,7 @@ func linuxGetAll() ([]Problem_linux, error) {
 }
 
 func linuxGetOne(id int) (Problem_linux, error) {
-	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", connectString)
 	if err != nil {
 		return Problem_linux{}, fmt.Errorf("データベース開けず(linuxGetOne): %w", err)
 	}
@@ -70,7 +70,7 @@ func linuxGetOne(id int) (Problem_linux, error) {
 }
 
 func linuxInsert(question string, anser string, hint string) error {
-	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", connectString)
 	if err != nil {
 		return fmt.Errorf("linuxInsert失敗: %w", err)
 	}
@@ -80,7 +80,7 @@ func linuxInsert(question string, anser string, hint string) error {
 }
 
 func linuxUpdate(id int, question string, hint string, anser string) error {
-	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", connectString)
 	if err != nil {
 		return fmt.Errorf("linuxUpdate失敗: %w", err)
 	}
@@ -95,7 +95,7 @@ func linuxUpdate(id int, question string, hint string, anser string) error {
 }
 
 func linuxDelete(id int) error {
-	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", connectString)
 	if err != nil {
 		return fmt.Errorf("linuxDelete失敗: %w", err)
 	}

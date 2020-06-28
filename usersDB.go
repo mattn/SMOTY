@@ -16,7 +16,7 @@ type Users struct {
 
 // DB接続
 func dbInit_users() error {
-	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", connectString)
 	if err != nil {
 		return fmt.Errorf("dbInit_users失敗: %w", err)
 	}
@@ -27,7 +27,7 @@ func dbInit_users() error {
 
 // サインアップ
 func dbSignup(name string, password string) error {
-	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", connectString)
 	if err != nil {
 		return fmt.Errorf("dbSignup失敗: %w", err)
 	}
@@ -43,7 +43,7 @@ func dbSignup(name string, password string) error {
 
 // ログイン
 func dblogin(name string, password string) (Users, error) {
-	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", connectString)
 	if err != nil {
 		return Users{}, fmt.Errorf("login失敗: %w", err)
 	}
@@ -56,7 +56,7 @@ func dblogin(name string, password string) (Users, error) {
 }
 
 func dbDelete(id int) (Users, error) {
-	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", connectString)
 	if err != nil {
 		return Users{}, fmt.Errorf("dbDelete失敗: %w", err)
 	}
@@ -68,7 +68,7 @@ func dbDelete(id int) (Users, error) {
 }
 
 func dbGetOne(id int) (Users, error) {
-	db, err := gorm.Open("mysql", "root:password@/database_name?charset=utf8&parseTime=True&loc=Local")
+	db, err := gorm.Open("mysql", connectString)
 	if err != nil {
 		return Users{}, fmt.Errorf("dbGetOne失敗: %w", err)
 	}
